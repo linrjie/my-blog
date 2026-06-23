@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人笔记 - 我的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+      <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <div class="bg-layer">
+      <div class="bg-image active" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=60')"></div>
+      <div class="bg-image" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=60')"></div>
+      <div class="bg-overlay"></div>
+      <div class="bg-gradient"></div>
+      <div class="glow-blob top-left"></div>
+      <div class="glow-blob bottom-right"></div>
+    </div>
+    <div class="fireflies">
+      <div class="firefly" style="top:20%;left:15%"></div>
+      <div class="firefly" style="top:60%;left:75%"></div>
+      <div class="firefly" style="top:40%;left:45%"></div>
+    </div>
+
+    <header class="header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
+        <nav class="nav">
+          <a href="index.html">首页</a>
+          <a href="notes.html">笔记</a>
+          <a href="guestbook.html">留言</a>
+          <a href="gallery.html">图集</a>
+          <a href="friends.html">友链</a>
+          <a href="tags.html">标签</a>
+          <a href="changelog.html">日志</a>
+          <a href="about.html">关于</a>
+          <a href="settings.html" title="设置">⚙️</a>
+          <span id="sync-status" style="font-size:0.7rem;margin-left:4px"></span>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <nav class="breadcrumb">
+        <a href="index.html">首页</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>个人笔记</span>
+      </nav>
+
+      <!-- Create Note Form -->
+      <div class="form-card">
+        <h2>✏️ 新建笔记</h2>
+        <div class="form-group">
+          <label>标题</label>
+          <input type="text" id="note-title" placeholder="输入笔记标题..." />
+        </div>
+
+        <!-- Markdown Editor -->
+        <div class="form-group">
+          <label>内容（支持 Markdown）</label>
+          <div class="md-editor">
+            <div class="md-editor-toolbar">
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'bold')" title="粗体">𝐁</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'italic')" title="斜体">𝐼</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'strikethrough')" title="删除线">S̶</button>
+              <div class="md-toolbar-sep"></div>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'h1')" title="一级标题">H1</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'h2')" title="二级标题">H2</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'h3')" title="三级标题">H3</button>
+              <div class="md-toolbar-sep"></div>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'code')" title="行内代码">&lt;/&gt;</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'codeblock')" title="代码块">```</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'quote')" title="引用">❝</button>
+              <div class="md-toolbar-sep"></div>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'ul')" title="无序列表">•</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'ol')" title="有序列表">1.</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'link')" title="链接">🔗</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'image')" title="图片">🖼</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'hr')" title="分割线">—</button>
+              <button class="md-toolbar-btn" onclick="insertMarkdown(document.getElementById('note-content'), 'table')" title="表格">⊞</button>
+            </div>
+            <div class="md-editor-body">
+              <div class="md-editor-pane">
+                <label>✏️ 编辑</label>
+                <textarea id="note-content" placeholder="写下你的想法、灵感、代码片段...&#10;&#10;支持 Markdown 语法：&#10;# 标题&#10;**粗体** *斜体*&#10;- 列表&#10;> 引用&#10;```代码块```"></textarea>
+              </div>
+              <div class="md-editor-pane">
+                <label>👁 预览</label>
+                <div class="md-preview" id="note-preview">
+                  <p class="md-empty">开始输入内容...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>标签（可选）</label>
+          <input type="text" id="note-tags" placeholder="如：JavaScript, 学习笔记" />
+        </div>
+        <div class="form-group">
+          <label>附件（可选）</label>
+          <div class="file-upload">
+            <label class="file-upload-btn">
+              📎 添加附件
+              <input type="file" id="note-files" multiple accept="image/*,.pdf,.txt,.md,.json,.js,.css,.html" />
+            </label>
+            <span style="font-size:0.8rem;color:var(--text-muted)">支持图片、文本等文件</span>
+          </div>
+          <div class="file-preview" id="note-file-preview"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="createNote()">💾 保存笔记</button>
+          <button class="btn btn-secondary" onclick="resetNoteForm()">清空</button>
+        </div>
+      </div>
+
+      <!-- Notes List -->
+      <h2 class="section-title">📒 我的笔记</h2>
+      <div class="notes-grid" id="notes-list"></div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 MyBlog · 用 ❤️ 和代码构建</p>
+    </footer>
+
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">↑</button>
+
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/markdown.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+      initBgSlideshow();
+
+      // Markdown 实时预览
+      const noteContent = document.getElementById("note-content");
+      const notePreview = document.getElementById("note-preview");
+      noteContent.addEventListener("input", () => {
+        notePreview.innerHTML = parseMarkdown(noteContent.value);
+      });
+
+      // Tab 键支持
+      noteContent.addEventListener("keydown", (e) => {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          const start = noteContent.selectionStart;
+          const end = noteContent.selectionEnd;
+          noteContent.value = noteContent.value.substring(0, start) + "  " + noteContent.value.substring(end);
+          noteContent.selectionStart = noteContent.selectionEnd = start + 2;
+          noteContent.dispatchEvent(new Event("input"));
+        }
+      });
+    </script>
+  </body>
+</html>

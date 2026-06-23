@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XingHuiSama の 博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Firebase SDK (for cross-device sync) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-layer">
+      <div class="bg-image active" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=60')"></div>
+      <div class="bg-image" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=60')"></div>
+      <div class="bg-image" style="background-image:url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=60')"></div>
+      <div class="bg-overlay"></div>
+      <div class="bg-gradient"></div>
+      <div class="glow-blob top-left"></div>
+      <div class="glow-blob bottom-right"></div>
+    </div>
+
+    <!-- Fireflies -->
+    <div class="fireflies">
+      <div class="firefly" style="top:20%;left:15%"></div>
+      <div class="firefly" style="top:60%;left:75%"></div>
+      <div class="firefly" style="top:40%;left:45%"></div>
+      <div class="firefly" style="top:80%;left:25%"></div>
+      <div class="firefly" style="top:10%;left:85%"></div>
+    </div>
+
+    <header class="header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
+        <nav class="nav">
+          <a href="index.html">首页</a>
+          <a href="notes.html">笔记</a>
+          <a href="guestbook.html">留言</a>
+          <a href="gallery.html">图集</a>
+          <a href="friends.html">友链</a>
+          <a href="tags.html">标签</a>
+          <a href="changelog.html">日志</a>
+          <a href="about.html">关于</a>
+          <a href="settings.html" title="设置">⚙️</a>
+          <span id="sync-status" style="font-size:0.7rem;margin-left:4px"></span>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Profile Card -->
+      <div class="hero-card">
+        <div class="hero-avatar">
+          <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=c0aede" alt="avatar" />
+        </div>
+        <div class="hero-info">
+          <h1 id="setting-hero-name">XingHuiSama</h1>
+          <p class="hero-desc" id="setting-hero-desc">在代码与学术间穿梭的普通人。记录技术思考，分享学习心得。</p>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-num" id="stat-articles">4</div>
+              <div class="stat-label">文章</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="hero-stat">
+              <div class="stat-num" id="stat-notes">0</div>
+              <div class="stat-label">笔记</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="hero-stat">
+              <div class="stat-num" id="stat-msgs">0</div>
+              <div class="stat-label">留言</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="hero-stat">
+              <div class="stat-num" id="stat-photos">0</div>
+              <div class="stat-label">照片</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="搜寻标题、描述或标签..." autocomplete="off" />
+        <span class="search-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+      </div>
+
+      <!-- Layout: Content + Widgets -->
+      <div class="widgets-layout">
+        <div class="content-main">
+          <h2 class="section-title">📝 最新文章</h2>
+          <div class="article-list" id="article-list"></div>
+        </div>
+
+        <aside class="widgets-sidebar">
+          <!-- Clock -->
+          <div class="widget">
+            <div class="widget-title">🕐 时钟</div>
+            <div class="widget-clock">
+              <div class="clock-time" id="widget-clock-time">00:00:00</div>
+              <div class="clock-date" id="widget-clock-date"></div>
+              <div class="clock-greeting" id="widget-clock-greeting"></div>
+            </div>
+          </div>
+
+          <!-- Online Time -->
+          <div class="widget">
+            <div class="widget-title">⚡ 在线时长</div>
+            <div class="widget-online">
+              <div class="online-time"><span class="online-dot"></span><span id="widget-online-time">00:00:00</span></div>
+              <div class="online-label">当前会话停留时间</div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="widget">
+            <div class="widget-title">📊 数据统计</div>
+            <div class="widget-stats">
+              <div class="widget-stat-item">
+                <div class="widget-stat-num" id="widget-stat-articles">0</div>
+                <div class="widget-stat-label">文章</div>
+              </div>
+              <div class="widget-stat-item">
+                <div class="widget-stat-num" id="widget-stat-notes">0</div>
+                <div class="widget-stat-label">笔记</div>
+              </div>
+              <div class="widget-stat-item">
+                <div class="widget-stat-num" id="widget-stat-msgs">0</div>
+                <div class="widget-stat-label">留言</div>
+              </div>
+              <div class="widget-stat-item">
+                <div class="widget-stat-num" id="widget-stat-photos">0</div>
+                <div class="widget-stat-label">照片</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weather -->
+          <div class="widget">
+            <div class="widget-title">🌤 天气</div>
+            <div class="widget-weather">
+              <div class="weather-icon" id="widget-weather-icon">☀️</div>
+              <div class="weather-temp" id="widget-weather-temp">--°C</div>
+              <div class="weather-desc" id="widget-weather-desc">加载中...</div>
+              <div class="weather-location">📍 当前位置</div>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="widget">
+            <div class="widget-title">🔗 快捷导航</div>
+            <div class="widget-links">
+              <a href="notes.html" class="widget-link">
+                <span class="widget-link-icon">📝</span> 个人笔记
+              </a>
+              <a href="guestbook.html" class="widget-link">
+                <span class="widget-link-icon">💬</span> 留言板
+              </a>
+              <a href="gallery.html" class="widget-link">
+                <span class="widget-link-icon">🖼</span> 图集
+              </a>
+              <a href="about.html" class="widget-link">
+                <span class="widget-link-icon">👨‍💻</span> 关于我
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 MyBlog · 用 ❤️ 和代码构建</p>
+    </footer>
+
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">↑</button>
+
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/articles.js"></script>
+    <script src="js/widgets.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+      renderArticleList("article-list");
+      initSearch();
+      initBgSlideshow();
+
+      // 统计数据
+      document.getElementById("stat-articles").textContent = articles.length;
+      const allTags = [...new Set(articles.flatMap(a => a.tags))];
+      document.getElementById("stat-tags") && (document.getElementById("stat-tags").textContent = allTags.length);
+
+      // 异步加载笔记/留言/图集数量
+      DB.get("notes").then(n => document.getElementById("stat-notes").textContent = n.length);
+      DB.get("guestbook").then(m => document.getElementById("stat-msgs").textContent = m.length);
+      DB.get("gallery").then(p => document.getElementById("stat-photos").textContent = p.length);
+
+      // 监听同步更新
+      window.addEventListener("db-sync", async () => {
+        document.getElementById("stat-notes").textContent = (await DB.get("notes")).length;
+        document.getElementById("stat-msgs").textContent = (await DB.get("guestbook")).length;
+        document.getElementById("stat-photos").textContent = (await DB.get("gallery")).length;
+      });
+
+      // 搜索清除按钮
+      const searchInput = document.getElementById("search-input");
+      const searchClear = document.getElementById("search-clear");
+      searchInput.addEventListener("input", () => {
+        searchClear.classList.toggle("visible", searchInput.value.length > 0);
+      });
+
+      function clearSearch() {
+        searchInput.value = "";
+        searchClear.classList.remove("visible");
+        renderArticleList("article-list");
+        searchInput.focus();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>友链 - 我的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <div class="bg-layer">
+      <div class="bg-image active" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=60')"></div>
+      <div class="bg-image" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=60')"></div>
+      <div class="bg-overlay"></div>
+      <div class="bg-gradient"></div>
+      <div class="glow-blob top-left"></div>
+      <div class="glow-blob bottom-right"></div>
+    </div>
+    <div class="fireflies">
+      <div class="firefly" style="top:20%;left:15%"></div>
+      <div class="firefly" style="top:60%;left:75%"></div>
+      <div class="firefly" style="top:40%;left:45%"></div>
+    </div>
+
+    <header class="header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
+        <nav class="nav">
+          <a href="index.html">首页</a>
+          <a href="notes.html">笔记</a>
+          <a href="guestbook.html">留言</a>
+          <a href="gallery.html">图集</a>
+          <a href="friends.html">友链</a>
+          <a href="tags.html">标签</a>
+          <a href="changelog.html">日志</a>
+          <a href="about.html">关于</a>
+          <a href="settings.html" title="设置">⚙️</a>
+          <span id="sync-status" style="font-size:0.7rem;margin-left:4px"></span>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <nav class="breadcrumb">
+        <a href="index.html">首页</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>友链</span>
+      </nav>
+
+      <!-- 申请友链模板 -->
+      <div class="friend-apply-card">
+        <h3>🤝 申请友链</h3>
+        <p>欢迎交换友链！请将以下信息发送给我：</p>
+        <div class="friend-apply-template">名称：你的博客名
+链接：https://your-blog.com
+头像：头像图片地址（可选）
+简介：一句话介绍你的博客</div>
+        <p style="font-size:0.8rem;color:var(--text-muted)">或直接在下方表单添加（你添加的友链只有你能看到和管理）</p>
+      </div>
+
+      <!-- Add Friend Form -->
+      <div class="form-card" id="friend-form">
+        <h2>➕ 添加友链</h2>
+        <input type="hidden" id="friend-edit-id" value="" />
+
+        <div class="form-group">
+          <label>头像</label>
+          <div class="friend-avatar-upload">
+            <img class="friend-avatar-preview" id="friend-avatar-preview" src="https://ui-avatars.com/api/?name=?&background=6366f1&color=fff&bold=true&size=128" alt="avatar" />
+            <label class="file-upload-btn">
+              📷 上传头像
+              <input type="file" id="friend-avatar-input" accept="image/*" style="display:none" />
+            </label>
+            <span style="font-size:0.78rem;color:var(--text-muted)">可选，不上传将自动生成</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>名称 *</label>
+          <input type="text" id="friend-name" placeholder="友链名称..." />
+        </div>
+
+        <div class="form-group">
+          <label>链接 *</label>
+          <input type="url" id="friend-url" placeholder="https://..." />
+        </div>
+
+        <div class="form-group">
+          <label>简介</label>
+          <textarea id="friend-desc" rows="2" placeholder="一句话介绍..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" id="friend-save-btn" onclick="saveFriend()">💾 添加友链</button>
+          <button class="btn btn-secondary" onclick="resetFriendForm()">清空</button>
+        </div>
+      </div>
+
+      <!-- Friends List -->
+      <h2 class="section-title">🔗 我的友链</h2>
+      <div class="friends-grid" id="friends-list"></div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 MyBlog · 用 ❤️ 和代码构建</p>
+    </footer>
+
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">↑</button>
+
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/friends.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+      initBgSlideshow();
+    </script>
+  </body>
+</html>

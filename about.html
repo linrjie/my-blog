@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>关于我 - 我的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+      <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <div class="bg-layer">
+      <div class="bg-image active" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=60')"></div>
+      <div class="bg-image" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=60')"></div>
+      <div class="bg-overlay"></div>
+      <div class="bg-gradient"></div>
+      <div class="glow-blob top-left"></div>
+      <div class="glow-blob bottom-right"></div>
+    </div>
+    <div class="fireflies">
+      <div class="firefly" style="top:20%;left:15%"></div>
+      <div class="firefly" style="top:60%;left:75%"></div>
+      <div class="firefly" style="top:40%;left:45%"></div>
+    </div>
+
+    <header class="header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
+        <nav class="nav">
+          <a href="index.html">首页</a>
+          <a href="notes.html">笔记</a>
+          <a href="guestbook.html">留言</a>
+          <a href="gallery.html">图集</a>
+          <a href="friends.html">友链</a>
+          <a href="tags.html">标签</a>
+          <a href="changelog.html">日志</a>
+          <a href="about.html">关于</a>
+          <a href="settings.html" title="设置">⚙️</a>
+          <span id="sync-status" style="font-size:0.7rem;margin-left:4px"></span>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <nav class="breadcrumb">
+        <a href="index.html">首页</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>关于我</span>
+      </nav>
+
+      <div class="about-section">
+        <div class="about-avatar">👨‍💻</div>
+        <div class="about-text">
+          <h1 id="about-name">Hi, 我是博主 👋</h1>
+          <p class="subtitle" id="about-subtitle">全栈开发者 / 开源爱好者 / 终身学习者</p>
+          <p>
+            热爱编程，喜欢探索新技术，相信技术能改变世界。平时喜欢写代码、
+            读技术文章、参与开源项目。
+          </p>
+          <p>
+            这个博客是我记录学习心得和分享技术思考的地方。希望这些内容能
+            对你有所帮助，也欢迎交流讨论！
+          </p>
+        </div>
+      </div>
+
+      <div class="about-skills">
+        <h2>🛠 技术栈</h2>
+        <div class="skill-tags">
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">TypeScript</span>
+          <span class="skill-tag">Vue.js</span>
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">CSS</span>
+          <span class="skill-tag">HTML</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">Linux</span>
+          <span class="skill-tag">MySQL</span>
+        </div>
+      </div>
+
+      <div class="about-skills" style="margin-top: 32px">
+        <h2>📮 联系方式</h2>
+        <div class="skill-tags">
+          <span class="skill-tag">📧 GitHub</span>
+          <span class="skill-tag">🐦 Twitter</span>
+          <span class="skill-tag">💬 微信</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 MyBlog · 用 ❤️ 和代码构建</p>
+    </footer>
+
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">↑</button>
+
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+      initBgSlideshow();
+    </script>
+  </body>
+</html>
