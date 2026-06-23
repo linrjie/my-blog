@@ -16,7 +16,7 @@ function toggleTheme() {
 function updateToggleIcon(theme) {
   const btn = document.querySelector(".theme-toggle");
   if (btn) {
-    btn.textContent = theme === "dark" ? "☀️" : "🌙";
+    btn.textContent = theme === "dark" ? "☀️ 浅色模式" : "🌙 深色模式";
   }
 }
 
@@ -31,6 +31,46 @@ function setActiveNav() {
     }
   });
 }
+
+// ===== Mobile Nav Toggle =====
+function toggleNav() {
+  const nav = document.getElementById("main-nav");
+  const toggle = document.getElementById("nav-toggle");
+  const overlay = document.getElementById("nav-overlay");
+  if (!nav) return;
+
+  const isOpen = nav.classList.contains("open");
+  if (isOpen) {
+    closeNav();
+  } else {
+    nav.classList.add("open");
+    toggle.classList.add("active");
+    overlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeNav() {
+  const nav = document.getElementById("main-nav");
+  const toggle = document.getElementById("nav-toggle");
+  const overlay = document.getElementById("nav-overlay");
+  if (nav) nav.classList.remove("open");
+  if (toggle) toggle.classList.remove("active");
+  if (overlay) overlay.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+// 点击导航链接后自动关闭
+document.addEventListener("click", (e) => {
+  if (e.target.closest(".nav a")) {
+    closeNav();
+  }
+});
+
+// ESC 键关闭导航
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeNav();
+});
 
 // ===== Background Slideshow =====
 function initBgSlideshow() {

@@ -29,7 +29,12 @@
     <header class="header">
       <div class="header-inner">
         <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
-        <nav class="nav">
+        <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()">
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </button>
+        <nav class="nav" id="main-nav">
           <a href="index.html">首页</a>
           <a href="notes.html">笔记</a>
           <a href="guestbook.html">留言</a>
@@ -38,10 +43,11 @@
           <a href="tags.html">标签</a>
           <a href="changelog.html">日志</a>
           <a href="about.html">关于</a>
-          <a href="settings.html" title="设置">⚙️</a>
-          <span id="sync-status" style="font-size:0.7rem;margin-left:4px"></span>
-          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+          <a href="settings.html" title="设置">⚙️ 设置</a>
+          <span id="sync-status" style="font-size:0.7rem;margin:8px 0"></span>
+          <button class="theme-toggle" onclick="toggleTheme()">🌙 主题切换</button>
         </nav>
+        <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
       </div>
     </header>
 
