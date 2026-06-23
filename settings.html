@@ -88,8 +88,6 @@
         margin-top: 2px;
       }
     </style>
-      <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   </head>
   <body>
     <div class="bg-layer">
@@ -186,18 +184,56 @@
         <h2>🎨 其他设置</h2>
         <div class="form-group">
           <label>主题模式</label>
-          <div style="display:flex;gap:10px;align-items:center">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <button class="btn btn-secondary" onclick="document.documentElement.removeAttribute('data-theme');localStorage.setItem('theme','light')">☀️ 浅色</button>
             <button class="btn btn-secondary" onclick="document.documentElement.setAttribute('data-theme','dark');localStorage.setItem('theme','dark')">🌙 深色</button>
-            <span style="font-size:0.8rem;color:var(--text-muted)">或使用右上角按钮切换</span>
           </div>
         </div>
+      </div>
+
+      <!-- Data Sync -->
+      <div class="form-card" style="margin-top:20px">
+        <h2>🔄 跨设备同步</h2>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">
+          导出数据文件，在另一台设备上导入，即可实现数据同步。
+        </p>
         <div class="form-group">
-          <label>清除所有数据</label>
-          <button class="btn btn-secondary" style="color:#ef4444;border-color:rgba(239,68,68,0.3)" onclick="if(confirm('确定要清除所有博客数据吗？此操作不可恢复！')){localStorage.clear();location.reload()}">🗑 清除所有数据</button>
-          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">将清除所有笔记、留言、图集、设置等本地数据</div>
+          <label>导出数据</label>
+          <button class="btn btn-primary" onclick="DB.exportAll()">📤 导出全部数据</button>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">将笔记、留言、图集、友链、设置导出为 JSON 文件</div>
+        </div>
+        <div class="form-group">
+          <label>导入数据</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <label class="btn btn-secondary" style="cursor:pointer">
+              📥 选择文件导入
+              <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(this)" />
+            </label>
+            <span id="import-status" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          </div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">导入会合并已有数据（不会覆盖重复内容）</div>
         </div>
       </div>
+
+      <script>
+        async function handleImport(input) {
+          const file = input.files[0];
+          if (!file) return;
+          const status = document.getElementById("import-status");
+          status.textContent = "导入中...";
+          status.style.color = "#6366f1";
+          try {
+            await DB.importAll(file);
+            status.textContent = "✅ 导入成功！";
+            status.style.color = "#22c55e";
+            setTimeout(() => location.reload(), 1500);
+          } catch (e) {
+            status.textContent = "❌ 导入失败";
+            status.style.color = "#ef4444";
+          }
+          input.value = "";
+        }
+      </script>
     </main>
 
     <footer class="footer">

@@ -9,8 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <!-- Firebase SDK (for cross-device sync) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   </head>
   <body>
     <!-- Animated Background -->
@@ -177,11 +175,41 @@
               <a href="gallery.html" class="widget-link">
                 <span class="widget-link-icon">🖼</span> 图集
               </a>
-              <a href="about.html" class="widget-link">
-                <span class="widget-link-icon">👨‍💻</span> 关于我
+              <a href="friends.html" class="widget-link">
+                <span class="widget-link-icon">🤝</span> 友链
+              </a>
+              <a href="settings.html" class="widget-link">
+                <span class="widget-link-icon">⚙️</span> 设置
               </a>
             </div>
           </div>
+
+          <!-- Sync -->
+          <div class="widget">
+            <div class="widget-title">🔄 数据同步</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="DB.exportAll()">📤 导出数据</button>
+              <label class="btn btn-secondary" style="width:100%;justify-content:center;cursor:pointer;margin:0">
+                📥 导入数据
+                <input type="file" accept=".json" style="display:none" onchange="quickImport(this)" />
+              </label>
+            </div>
+          </div>
+
+          <script>
+            async function quickImport(input) {
+              const file = input.files[0];
+              if (!file) return;
+              try {
+                await DB.importAll(file);
+                alert("✅ 导入成功！页面将刷新");
+                location.reload();
+              } catch (e) {
+                alert("❌ 导入失败: " + e.message);
+              }
+              input.value = "";
+            }
+          </script>
         </aside>
       </div>
     </main>
