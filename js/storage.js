@@ -1,15 +1,7 @@
-// ===== Supabase Cloud Storage =====
-// 实时跨设备同步，所有设备数据自动更新
-//
-// 设置步骤：
-// 1. 访问 https://supabase.com 注册免费账号
-// 2. 创建新项目（记下 Project URL 和 anon key）
-// 3. 在 SQL Editor 中执行下方建表脚本
-// 4. 将 URL 和 Key 填入下方配置
+// ===== Supabase Cloud Storage (Fixed) =====
+// 所有设备共享同一份数据，实时同步
 
 const DB = (() => {
-  // ============ Supabase 配置 ============
-  // 从设置页面读取
   function getConfig() {
     return {
       url: localStorage.getItem("blog_supabase_url") || "",
@@ -34,16 +26,15 @@ const DB = (() => {
       else localCache[key] = [];
     }
 
-    // 检查是否配置了 Supabase
+    // 检查 Supabase 配置
     const config = getConfig();
-    if (config.url.includes("your-project") || config.key.includes("your-anon")) {
-      log("📦 Supabase 未配置，使用本地存储模式");
+    if (!config.url || !config.key || config.url.includes("your-project")) {
+      log("📦 Supabase 未配置，使用本地存储");
       updateSyncStatus("local");
       return;
     }
 
     try {
-      // 动态加载 Supabase SDK
       if (typeof window.supabase === "undefined") {
         await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");
       }
@@ -52,16 +43,17 @@ const DB = (() => {
       connected = true;
       log("✅ Supabase 已连接");
 
-      // 监听所有集合的实时变化
+      // 初始同步：从云端拉取所有数据
+      await syncAllFromCloud();
+
+      // 订阅实时变化
       for (const key of getCollectionNames()) {
         subscribeToCollection(key);
       }
 
-      // 初始同步
-      await syncAllFromCloud();
       updateSyncStatus("synced");
     } catch (e) {
-      log("⚠️ Supabase 连接失败: " + e.message);
+      log("⚠️ 连接失败: " + e.message);
       updateSyncStatus("error");
     }
   }
@@ -80,7 +72,7 @@ const DB = (() => {
     return ["notes", "guestbook", "gallery", "settings", "friends"];
   }
 
-  // ===== 从云端同步到本地 =====
+  // ===== 从云端拉取数据（合并所有设备）=====
   async function syncAllFromCloud() {
     if (!connected) return;
     for (const key of getCollectionNames()) {
@@ -91,23 +83,31 @@ const DB = (() => {
   async function syncFromCloud(collection) {
     if (!connected) return;
     try {
+      // 读取该集合的所有记录（所有设备）
       const { data, error } = await supabase
         .from("blog_data")
-        .select("content")
-        .eq("collection", collection)
-        .eq("device_id", deviceId)
-        .single();
+        .select("content, device_id")
+        .eq("collection", collection);
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error) throw error;
 
-      if (data && data.content) {
-        const cloudData = data.content;
+      if (data && data.length > 0) {
+        // 合并所有设备的数据
+        let allCloudData = [];
+        for (const row of data) {
+          if (row.content && Array.isArray(row.content)) {
+            allCloudData = allCloudData.concat(row.content);
+          }
+        }
+
+        // 去重合并
         const localData = localCache[collection] || [];
-
-        // 合并数据
-        const merged = mergeData(localData, cloudData);
+        const merged = mergeData(localData, allCloudData);
         localCache[collection] = merged;
         localStorage.setItem("myblog_" + collection, JSON.stringify(merged));
+
+        // 同时更新云端（合并后的完整数据写回当前设备）
+        await uploadToCloud(collection, merged);
 
         // 触发 UI 更新
         window.dispatchEvent(new CustomEvent("db-sync", {
@@ -119,14 +119,12 @@ const DB = (() => {
     }
   }
 
-  // ===== 从本地同步到云端 =====
-  async function syncToCloud(collection) {
+  // ===== 上传数据到云端 =====
+  async function uploadToCloud(collection, data) {
     if (!connected) return;
-    const data = localCache[collection] || [];
 
     try {
-      // 先尝试更新
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from("blog_data")
         .upsert({
           collection: collection,
@@ -137,52 +135,62 @@ const DB = (() => {
           onConflict: "collection,device_id"
         });
 
-      if (updateError) throw updateError;
+      if (error) throw error;
     } catch (e) {
       log("⚠️ 上传 " + collection + " 失败: " + e.message);
     }
   }
 
-  // ===== 实时订阅 =====
+  // ===== 实时订阅（接收所有设备的变化）=====
   function subscribeToCollection(collection) {
     if (!connected) return;
 
     supabase
       .channel("blog_" + collection)
       .on("postgres_changes", {
-        event: "*",
+        event: "UPDATE",
         schema: "public",
         table: "blog_data",
         filter: `collection=eq.${collection}`
       }, (payload) => {
-        if (payload.new && payload.new.device_id !== deviceId) {
+        // 接收所有设备的变化，不只是其他设备
+        if (payload.new && payload.new.content) {
           const cloudData = payload.new.content || [];
           const localData = localCache[collection] || [];
-          const merged = mergeData(localData, cloudData);
-          localCache[collection] = merged;
-          localStorage.setItem("myblog_" + collection, JSON.stringify(merged));
 
-          window.dispatchEvent(new CustomEvent("db-sync", {
-            detail: { collection, data: merged }
-          }));
-          log("🔄 " + collection + " 已实时同步");
+          // 检查数据是否真的变化了
+          const cloudStr = JSON.stringify(cloudData);
+          const localStr = JSON.stringify(localData);
+
+          if (cloudStr !== localStr) {
+            const merged = mergeData(localData, cloudData);
+            localCache[collection] = merged;
+            localStorage.setItem("myblog_" + collection, JSON.stringify(merged));
+
+            window.dispatchEvent(new CustomEvent("db-sync", {
+              detail: { collection, data: merged }
+            }));
+            log("🔄 " + collection + " 已实时同步 (" + (payload.new.device_id || "unknown") + ")");
+          }
         }
       })
       .subscribe();
   }
 
-  // ===== 合并数据（按 id 去重）=====
+  // ===== 合并数据（按 id 去重，保留最新的）=====
   function mergeData(existing, cloud) {
     const map = new Map();
+
+    // 先放入现有数据
+    for (const item of existing) {
+      map.set(String(item.id), item);
+    }
+
+    // 云端数据覆盖（更新的优先）
     for (const item of cloud) {
       map.set(String(item.id), item);
     }
-    for (const item of existing) {
-      const key = String(item.id);
-      if (!map.has(key)) {
-        map.set(key, item);
-      }
-    }
+
     return Array.from(map.values()).sort((a, b) => {
       if (a.id > b.id) return -1;
       if (a.id < b.id) return 1;
@@ -208,7 +216,8 @@ const DB = (() => {
   async function set(collection, data) {
     localCache[collection] = data;
     localStorage.setItem("myblog_" + collection, JSON.stringify(data));
-    syncToCloud(collection);
+    // 上传到云端
+    uploadToCloud(collection, data);
     return true;
   }
 
@@ -235,7 +244,15 @@ const DB = (() => {
     return false;
   }
 
-  // ===== 导出/导入（兼容旧版）=====
+  // ===== 手动刷新（从云端重新拉取）=====
+  async function refresh() {
+    if (!connected) return;
+    log("🔄 手动刷新...");
+    await syncAllFromCloud();
+    updateSyncStatus("synced");
+  }
+
+  // ===== 导出/导入 =====
   async function exportAll() {
     const allData = {};
     for (const key of getCollectionNames()) {
@@ -265,11 +282,8 @@ const DB = (() => {
               const existing = localCache[key] || [];
               localCache[key] = mergeData(existing, allData[key]);
               localStorage.setItem("myblog_" + key, JSON.stringify(localCache[key]));
+              await uploadToCloud(key, localCache[key]);
             }
-          }
-          // 同步到云端
-          for (const key of getCollectionNames()) {
-            await syncToCloud(key);
           }
           resolve(true);
         } catch (err) {
@@ -304,6 +318,7 @@ const DB = (() => {
     add,
     remove,
     update,
+    refresh,
     exportAll,
     importAll,
     getDeviceId: () => deviceId,

@@ -223,6 +223,14 @@
 
         <hr style="border:none;border-top:1px solid var(--border);margin:20px 0" />
 
+        <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:12px">🔄 手动同步</h3>
+        <div class="form-group">
+          <button class="btn btn-primary" onclick="DB.refresh().then(()=>{alert('✅ 同步完成');location.reload()})">🔄 立即从云端同步</button>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">如果数据没有自动同步，点击此按钮手动拉取</div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:20px 0" />
+
         <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:12px">📤 手动导出/导入</h3>
         <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">
           也可以导出 JSON 文件，在另一台设备上导入实现同步。
