@@ -194,13 +194,42 @@
       <!-- Data Sync -->
       <div class="form-card" style="margin-top:20px">
         <h2>🔄 跨设备同步</h2>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">
-          导出数据文件，在另一台设备上导入，即可实现数据同步。
+
+        <!-- Supabase Setup Guide -->
+        <div style="background:var(--accent-soft);border-radius:var(--radius-xs);padding:16px;margin-bottom:18px">
+          <h3 style="font-size:0.9rem;font-weight:700;color:var(--accent);margin-bottom:10px">☁️ Supabase 云端同步配置</h3>
+          <ol style="font-size:0.82rem;color:var(--text-secondary);line-height:2;padding-left:20px">
+            <li>访问 <a href="https://supabase.com" target="_blank" style="color:var(--accent)">supabase.com</a> 注册免费账号</li>
+            <li>创建新项目 → 进入 <strong>SQL Editor</strong></li>
+            <li>复制 <code style="background:var(--bg-card);padding:2px 6px;border-radius:4px;font-size:0.78rem">supabase-setup.sql</code> 中的 SQL 执行</li>
+            <li>进入 <strong>Settings → API</strong>，复制 <strong>Project URL</strong> 和 <strong>anon public key</strong></li>
+            <li>在下方填入你的 URL 和 Key，点击保存</li>
+          </ol>
+        </div>
+
+        <div class="form-group">
+          <label>Supabase Project URL</label>
+          <input type="url" id="supabase-url" placeholder="https://xxxxx.supabase.co" />
+        </div>
+        <div class="form-group">
+          <label>Supabase Anon Key</label>
+          <input type="text" id="supabase-key" placeholder="eyJhbGciOiJIUzI1NiIs..." style="font-family:monospace;font-size:0.8rem" />
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 保存配置</button>
+          <button class="btn btn-secondary" onclick="testSupabaseConnection()">🔍 测试连接</button>
+        </div>
+        <div id="supabase-status" style="font-size:0.8rem;margin-top:10px"></div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:20px 0" />
+
+        <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:12px">📤 手动导出/导入</h3>
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">
+          也可以导出 JSON 文件，在另一台设备上导入实现同步。
         </p>
         <div class="form-group">
           <label>导出数据</label>
           <button class="btn btn-primary" onclick="DB.exportAll()">📤 导出全部数据</button>
-          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">将笔记、留言、图集、友链、设置导出为 JSON 文件</div>
         </div>
         <div class="form-group">
           <label>导入数据</label>
@@ -211,9 +240,71 @@
             </label>
             <span id="import-status" style="font-size:0.8rem;color:var(--text-muted)"></span>
           </div>
-          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px">导入会合并已有数据（不会覆盖重复内容）</div>
         </div>
       </div>
+
+      <script>
+        // 加载已保存的配置
+        const savedUrl = localStorage.getItem("blog_supabase_url") || "";
+        const savedKey = localStorage.getItem("blog_supabase_key") || "";
+        document.getElementById("supabase-url").value = savedUrl;
+        document.getElementById("supabase-key").value = savedKey;
+
+        function saveSupabaseConfig() {
+          const url = document.getElementById("supabase-url").value.trim();
+          const key = document.getElementById("supabase-key").value.trim();
+          if (!url || !key) {
+            alert("请填写 URL 和 Key");
+            return;
+          }
+          localStorage.setItem("blog_supabase_url", url);
+          localStorage.setItem("blog_supabase_key", key);
+          const status = document.getElementById("supabase-status");
+          status.innerHTML = '<span style="color:#22c55e">✅ 配置已保存！请刷新页面生效</span>';
+        }
+
+        async function testSupabaseConnection() {
+          const url = document.getElementById("supabase-url").value.trim();
+          const key = document.getElementById("supabase-key").value.trim();
+          const status = document.getElementById("supabase-status");
+          if (!url || !key) {
+            status.innerHTML = '<span style="color:#ef4444">请先填写 URL 和 Key</span>';
+            return;
+          }
+          status.innerHTML = '<span style="color:#6366f1">🔄 测试连接中...</span>';
+          try {
+            const resp = await fetch(url + "/rest/v1/blog_data?select=count&limit=1", {
+              headers: { "apikey": key, "Authorization": "Bearer " + key }
+            });
+            if (resp.ok) {
+              status.innerHTML = '<span style="color:#22c55e">✅ 连接成功！数据表已就绪</span>';
+            } else {
+              const err = await resp.json();
+              status.innerHTML = '<span style="color:#ef4444">❌ 连接失败: ' + (err.message || resp.statusText) + '</span>';
+            }
+          } catch (e) {
+            status.innerHTML = '<span style="color:#ef4444">❌ 网络错误: ' + e.message + '</span>';
+          }
+        }
+
+        async function handleImport(input) {
+          const file = input.files[0];
+          if (!file) return;
+          const status = document.getElementById("import-status");
+          status.textContent = "导入中...";
+          status.style.color = "#6366f1";
+          try {
+            await DB.importAll(file);
+            status.textContent = "✅ 导入成功！";
+            status.style.color = "#22c55e";
+            setTimeout(() => location.reload(), 1500);
+          } catch (e) {
+            status.textContent = "❌ 导入失败";
+            status.style.color = "#ef4444";
+          }
+          input.value = "";
+        }
+      </script>
 
       <script>
         async function handleImport(input) {
