@@ -9,11 +9,11 @@
 
 const DB = (() => {
   // ============ Supabase 配置 ============
-  // 从设置页面读取，或手动填写
+  // 从设置页面读取
   function getConfig() {
     return {
-      url: localStorage.getItem("blog_supabase_url") || "https://your-project.supabase.co",
-      key: localStorage.getItem("blog_supabase_key") || "your-anon-key"
+      url: localStorage.getItem("blog_supabase_url") || "",
+      key: localStorage.getItem("blog_supabase_key") || ""
     };
   }
 
