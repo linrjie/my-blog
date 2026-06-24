@@ -122,6 +122,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initMsgFileUpload();
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
   window.addEventListener("db-sync", (e) => {
-    if (e.detail.collection === "guestbook") renderMessages();
+    if (e.detail.collection === "guestbook") {
+      clearTimeout(window._gbTimer);
+      window._gbTimer = setTimeout(() => renderMessages(), 300);
+    }
   });
 });

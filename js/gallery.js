@@ -103,6 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initGalleryDragDrop();
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
   window.addEventListener("db-sync", (e) => {
-    if (e.detail.collection === "gallery") renderGallery();
+    if (e.detail.collection === "gallery") {
+      clearTimeout(window._galleryTimer);
+      window._galleryTimer = setTimeout(() => renderGallery(), 300);
+    }
   });
 });

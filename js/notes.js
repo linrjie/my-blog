@@ -144,6 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initNoteFileUpload();
   // 监听云端同步
   window.addEventListener("db-sync", (e) => {
-    if (e.detail.collection === "notes") renderNotesList();
+    if (e.detail.collection === "notes") {
+      clearTimeout(window._notesTimer);
+      window._notesTimer = setTimeout(() => renderNotesList(), 300);
+    }
   });
 });

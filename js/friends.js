@@ -147,6 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initFriendAvatarUpload();
   // 监听云端同步
   window.addEventListener("db-sync", (e) => {
-    if (e.detail.collection === "friends") renderFriends();
+    if (e.detail.collection === "friends") {
+      clearTimeout(window._friendsTimer);
+      window._friendsTimer = setTimeout(() => renderFriends(), 300);
+    }
   });
 });

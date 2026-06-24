@@ -1,5 +1,4 @@
-// ===== Supabase Cloud Storage (Fixed) =====
-// 所有设备共享同一份数据，实时同步
+// ===== Supabase Cloud Storage (Fixed - no refresh loop) =====
 
 const DB = (() => {
   function getConfig() {
@@ -13,11 +12,12 @@ const DB = (() => {
   let deviceId = null;
   const localCache = {};
   let connected = false;
+  let isSyncing = false; // 防止同步循环
+  const syncTimers = {}; // 防抖计时器
 
   // ===== 初始化 =====
   async function init() {
     deviceId = getDeviceId();
-    log("设备 ID: " + deviceId);
 
     // 加载本地缓存
     for (const key of getCollectionNames()) {
@@ -26,10 +26,8 @@ const DB = (() => {
       else localCache[key] = [];
     }
 
-    // 检查 Supabase 配置
     const config = getConfig();
     if (!config.url || !config.key || config.url.includes("your-project")) {
-      log("📦 Supabase 未配置，使用本地存储");
       updateSyncStatus("local");
       return;
     }
@@ -41,9 +39,8 @@ const DB = (() => {
 
       supabase = window.supabase.createClient(config.url, config.key);
       connected = true;
-      log("✅ Supabase 已连接");
 
-      // 初始同步：从云端拉取所有数据
+      // 初始同步
       await syncAllFromCloud();
 
       // 订阅实时变化
@@ -53,7 +50,7 @@ const DB = (() => {
 
       updateSyncStatus("synced");
     } catch (e) {
-      log("⚠️ 连接失败: " + e.message);
+      console.log("[BlogDB] 连接失败:", e.message);
       updateSyncStatus("error");
     }
   }
@@ -72,7 +69,7 @@ const DB = (() => {
     return ["notes", "guestbook", "gallery", "settings", "friends"];
   }
 
-  // ===== 从云端拉取数据（合并所有设备）=====
+  // ===== 从云端拉取 =====
   async function syncAllFromCloud() {
     if (!connected) return;
     for (const key of getCollectionNames()) {
@@ -81,9 +78,8 @@ const DB = (() => {
   }
 
   async function syncFromCloud(collection) {
-    if (!connected) return;
+    if (!connected || isSyncing) return;
     try {
-      // 读取该集合的所有记录（所有设备）
       const { data, error } = await supabase
         .from("blog_data")
         .select("content, device_id")
@@ -92,7 +88,6 @@ const DB = (() => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        // 合并所有设备的数据
         let allCloudData = [];
         for (const row of data) {
           if (row.content && Array.isArray(row.content)) {
@@ -100,28 +95,33 @@ const DB = (() => {
           }
         }
 
-        // 去重合并
         const localData = localCache[collection] || [];
         const merged = mergeData(localData, allCloudData);
-        localCache[collection] = merged;
-        localStorage.setItem("myblog_" + collection, JSON.stringify(merged));
 
-        // 同时更新云端（合并后的完整数据写回当前设备）
-        await uploadToCloud(collection, merged);
-
-        // 触发 UI 更新
-        window.dispatchEvent(new CustomEvent("db-sync", {
-          detail: { collection, data: merged }
-        }));
+        // 只在数据真正变化时更新
+        if (JSON.stringify(merged) !== JSON.stringify(localData)) {
+          localCache[collection] = merged;
+          localStorage.setItem("myblog_" + collection, JSON.stringify(merged));
+          notifyUI(collection, merged);
+        }
       }
     } catch (e) {
-      log("⚠️ 同步 " + collection + " 失败: " + e.message);
+      console.log("[BlogDB] 同步失败:", collection, e.message);
     }
   }
 
-  // ===== 上传数据到云端 =====
-  async function uploadToCloud(collection, data) {
+  // ===== 上传到云端（防抖）=====
+  function scheduleUpload(collection) {
     if (!connected) return;
+    clearTimeout(syncTimers[collection]);
+    syncTimers[collection] = setTimeout(() => {
+      uploadToCloud(collection);
+    }, 500); // 500ms 防抖
+  }
+
+  async function uploadToCloud(collection) {
+    if (!connected || isSyncing) return;
+    const data = localCache[collection] || [];
 
     try {
       const { error } = await supabase
@@ -137,11 +137,11 @@ const DB = (() => {
 
       if (error) throw error;
     } catch (e) {
-      log("⚠️ 上传 " + collection + " 失败: " + e.message);
+      console.log("[BlogDB] 上传失败:", collection, e.message);
     }
   }
 
-  // ===== 实时订阅（接收所有设备的变化）=====
+  // ===== 实时订阅 =====
   function subscribeToCollection(collection) {
     if (!connected) return;
 
@@ -153,44 +153,42 @@ const DB = (() => {
         table: "blog_data",
         filter: `collection=eq.${collection}`
       }, (payload) => {
-        // 接收所有设备的变化，不只是其他设备
+        // 忽略自己设备的更新（避免循环）
+        if (payload.new && payload.new.device_id === deviceId) return;
+
         if (payload.new && payload.new.content) {
           const cloudData = payload.new.content || [];
           const localData = localCache[collection] || [];
 
-          // 检查数据是否真的变化了
-          const cloudStr = JSON.stringify(cloudData);
-          const localStr = JSON.stringify(localData);
-
-          if (cloudStr !== localStr) {
+          if (JSON.stringify(cloudData) !== JSON.stringify(localData)) {
+            isSyncing = true; // 标记正在同步，阻止上传
             const merged = mergeData(localData, cloudData);
             localCache[collection] = merged;
             localStorage.setItem("myblog_" + collection, JSON.stringify(merged));
-
-            window.dispatchEvent(new CustomEvent("db-sync", {
-              detail: { collection, data: merged }
-            }));
-            log("🔄 " + collection + " 已实时同步 (" + (payload.new.device_id || "unknown") + ")");
+            notifyUI(collection, merged);
+            isSyncing = false;
           }
         }
       })
       .subscribe();
   }
 
-  // ===== 合并数据（按 id 去重，保留最新的）=====
+  // ===== 通知 UI 更新 =====
+  function notifyUI(collection, data) {
+    window.dispatchEvent(new CustomEvent("db-sync", {
+      detail: { collection, data }
+    }));
+  }
+
+  // ===== 合并数据 =====
   function mergeData(existing, cloud) {
     const map = new Map();
-
-    // 先放入现有数据
     for (const item of existing) {
       map.set(String(item.id), item);
     }
-
-    // 云端数据覆盖（更新的优先）
     for (const item of cloud) {
       map.set(String(item.id), item);
     }
-
     return Array.from(map.values()).sort((a, b) => {
       if (a.id > b.id) return -1;
       if (a.id < b.id) return 1;
@@ -198,7 +196,6 @@ const DB = (() => {
     });
   }
 
-  // ===== 设备 ID =====
   function getDeviceId() {
     let id = localStorage.getItem("blog_device_id");
     if (!id) {
@@ -216,8 +213,7 @@ const DB = (() => {
   async function set(collection, data) {
     localCache[collection] = data;
     localStorage.setItem("myblog_" + collection, JSON.stringify(data));
-    // 上传到云端
-    uploadToCloud(collection, data);
+    scheduleUpload(collection);
     return true;
   }
 
@@ -244,11 +240,11 @@ const DB = (() => {
     return false;
   }
 
-  // ===== 手动刷新（从云端重新拉取）=====
   async function refresh() {
     if (!connected) return;
-    log("🔄 手动刷新...");
+    isSyncing = true;
     await syncAllFromCloud();
+    isSyncing = false;
     updateSyncStatus("synced");
   }
 
@@ -259,8 +255,6 @@ const DB = (() => {
       allData[key] = localCache[key] || [];
     }
     allData._exported = new Date().toLocaleString("zh-CN");
-    allData._device = deviceId;
-
     const json = JSON.stringify(allData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -277,16 +271,19 @@ const DB = (() => {
       reader.onload = async (e) => {
         try {
           const allData = JSON.parse(e.target.result);
+          isSyncing = true;
           for (const key of getCollectionNames()) {
             if (allData[key] && Array.isArray(allData[key])) {
               const existing = localCache[key] || [];
               localCache[key] = mergeData(existing, allData[key]);
               localStorage.setItem("myblog_" + key, JSON.stringify(localCache[key]));
-              await uploadToCloud(key, localCache[key]);
+              await uploadToCloud(key);
             }
           }
+          isSyncing = false;
           resolve(true);
         } catch (err) {
+          isSyncing = false;
           reject(err);
         }
       };
@@ -294,7 +291,6 @@ const DB = (() => {
     });
   }
 
-  // ===== 同步状态 =====
   function updateSyncStatus(status) {
     const el = document.getElementById("sync-status");
     if (!el) return;
@@ -307,20 +303,9 @@ const DB = (() => {
     el.innerHTML = `<span style="color:${s.color}">${s.icon} ${s.text}</span>`;
   }
 
-  function log(msg) {
-    console.log("%c[BlogDB] " + msg, "color: #6366f1; font-weight: bold;");
-  }
-
   return {
-    init,
-    get,
-    set,
-    add,
-    remove,
-    update,
-    refresh,
-    exportAll,
-    importAll,
+    init, get, set, add, remove, update,
+    refresh, exportAll, importAll,
     getDeviceId: () => deviceId,
     isOnline: () => connected,
   };
