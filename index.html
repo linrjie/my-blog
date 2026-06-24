@@ -1,143 +1,23 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XingHuiSama</title>
-<meta name="description" content="个人博客" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="bg-layer">
-<div class="bg-image active" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=60')"></div>
-<div class="bg-image" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=60')"></div>
-<div class="bg-overlay"></div>
-<div class="bg-gradient"></div>
-<div class="glow-blob top-left"></div>
-<div class="glow-blob bottom-right"></div>
-</div>
-<div class="fireflies">
-<div class="firefly" style="top:20%;left:15%"></div>
-<div class="firefly" style="top:60%;left:75%"></div>
-<div class="firefly" style="top:40%;left:45%"></div>
-</div>
-<header class="header">
-<div class="header-inner">
-<a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
-<button class="nav-toggle" id="nav-toggle" onclick="toggleNav()">
-<span class="nav-toggle-bar"></span>
-<span class="nav-toggle-bar"></span>
-<span class="nav-toggle-bar"></span>
-</button>
-<nav class="nav" id="main-nav">
-<a href="index.html">首页</a>
-<a href="notes.html">笔记</a>
-<a href="guestbook.html">留言</a>
-<a href="gallery.html">图集</a>
-<a href="friends.html">友链</a>
-<a href="tags.html">标签</a>
-<a href="changelog.html">日志</a>
-<a href="about.html">关于</a>
-<a href="settings.html">⚙️</a>
-<button class="theme-toggle" onclick="toggleTheme()">🌙 主题</button>
-</nav>
-<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
-</div>
-</header>
-<main class="main">
-<section class="hero-section">
-<div class="hero-content">
-<div class="hero-avatar">
-<img id="hero-avatar-img" src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=c0aede" alt="avatar" />
-</div>
-<h1 class="hero-name" id="hero-name">XingHuiSama</h1>
-<p class="hero-desc" id="hero-desc">在代码与学术间穿梭的普通人。记录技术思考，分享学习心得。</p>
-<div class="hero-tags">
-<span class="hero-tag">JavaScript</span>
-<span class="hero-tag">Python</span>
-<span class="hero-tag">Node.js</span>
-<span class="hero-tag">Vue</span>
-</div>
-<div class="hero-buttons">
-<a href="#articles" class="hero-btn hero-btn-primary">📝 查看文章</a>
-<a href="#projects" class="hero-btn hero-btn-secondary">🚀 查看项目</a>
-</div>
-</div>
-</section>
-<section class="quick-nav-section">
-<div class="quick-nav-grid">
-<a href="notes.html" class="quick-nav-card">
-<span class="quick-nav-icon">📝</span>
-<span class="quick-nav-label">博客文章</span>
-</a>
-<a href="#projects" class="quick-nav-card">
-<span class="quick-nav-icon">🚀</span>
-<span class="quick-nav-label">项目作品</span>
-</a>
-<a href="tags.html" class="quick-nav-card">
-<span class="quick-nav-icon">🏷️</span>
-<span class="quick-nav-label">分类标签</span>
-</a>
-<a href="about.html" class="quick-nav-card">
-<span class="quick-nav-icon">👤</span>
-<span class="quick-nav-label">关于我</span>
-</a>
-</div>
-</section>
-<section class="content-section" id="articles">
-<div class="content-grid">
-<div class="content-main">
-<div class="section-header">
-<h2 class="section-title">📝 最新文章</h2>
-<a href="notes.html" class="section-more">查看全部 →</a>
-</div>
-<div id="article-list"></div>
-</div>
-<aside class="sidebar">
-<div class="sidebar-card">
-<h3 class="sidebar-title">关于本站</h3>
-<p class="sidebar-about-text">记录技术学习笔记，分享开发经验与心得。</p>
-</div>
-<div class="sidebar-card">
-<h3 class="sidebar-title">搜索</h3>
-<div class="sidebar-search">
-<span class="sidebar-search-icon">🔍</span>
-<input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off" />
-</div>
-</div>
-<div class="sidebar-card">
-<h3 class="sidebar-title">热门标签</h3>
-<div class="sidebar-tags" id="sidebar-tags"></div>
-</div>
-<div class="sidebar-card">
-<h3 class="sidebar-title">📖 每日一句</h3>
-<div class="widget-quote">
-<div class="quote-text" id="daily-quote">加载中...</div>
-<div class="quote-author" id="daily-quote-author"></div>
-</div>
-</div>
-</aside>
-</div>
-</section>
-<section class="project-section" id="projects">
-<div class="section-header" style="max-width:1100px;margin:0 auto 20px">
-<h2 class="section-title">🚀 项目作品</h2>
-</div>
-<div class="project-grid" id="project-list"></div>
-</section>
-</main>
-<footer class="footer-section">
-<div class="footer-links">
-<a href="https://github.com/linrjie" class="footer-link" target="_blank">GitHub</a>
-<a href="about.html" class="footer-link">关于</a>
-<a href="changelog.html" class="footer-link">更新日志</a>
-</div>
-<p class="footer-copyright">© 2026 MyBlog · 用 ❤️ 和代码构建</p>
-</footer>
-<button class="back-to-top" id="back-to-top" onclick="scrollToTop()">↑</button>
+<header class="topnav"><div class="topnav-inner"><a href="index.html" class="topnav-logo">MyBlog<span>.</span></a><nav class="topnav-links" id="nav-links"><a href="index.html" class="active">首页</a><a href="notes.html">笔记</a><a href="#projects">项目</a><a href="tags.html">标签</a><a href="about.html">关于</a></nav><div class="topnav-right"><button class="topnav-icon" id="search-btn">🔍</button><button class="topnav-icon" id="theme-btn">🌙</button><button class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></button></div></div></header>
+<div class="nav-overlay" id="nav-overlay"></div>
+<section class="hero"><div class="hero-left"><p class="hero-greeting">Hi, <span id="hero-name">XingHuiSama</span> 👋</p><h1 class="hero-name">在代码与学术间<br>穿梭的<span>普通人</span></h1><p class="hero-desc">记录技术思考，分享学习心得。保持好奇，持续学习。</p><div class="hero-tags"><span class="hero-tag">JavaScript</span><span class="hero-tag">Python</span><span class="hero-tag">Node.js</span><span class="hero-tag">Vue</span></div><div class="hero-btns"><a href="#articles" class="hero-btn hero-btn-primary">📝 浏览文章</a><a href="#projects" class="hero-btn hero-btn-secondary">🚀 查看项目</a></div></div><div class="hero-right"><div class="hero-card"><div class="hero-card-avatar">👨‍💻</div><div class="hero-card-name" id="hero-card-name">XingHuiSama</div><div class="hero-card-desc" id="hero-card-desc">全栈开发者 / 技术爱好者</div><div class="hero-card-stats"><div class="hero-stat"><div class="hero-stat-num" id="stat-articles">4</div><div class="hero-stat-label">文章</div></div><div class="hero-stat"><div class="hero-stat-num" id="stat-projects">3</div><div class="hero-stat-label">项目</div></div><div class="hero-stat"><div class="hero-stat-num" id="stat-tags">8</div><div class="hero-stat-label">标签</div></div></div></div></div></section>
+<section class="quick"><div class="quick-grid"><a href="notes.html" class="quick-card"><span class="quick-card-icon">📖</span><div class="quick-card-title">文章</div><div class="quick-card-sub">技术笔记与思考</div></a><a href="#projects" class="quick-card"><span class="quick-card-icon">📁</span><div class="quick-card-title">项目</div><div class="quick-card-sub">开源作品展示</div></a><a href="tags.html" class="quick-card"><span class="quick-card-icon">🏷️</span><div class="quick-card-title">标签</div><div class="quick-card-sub">分类浏览内容</div></a><a href="about.html" class="quick-card"><span class="quick-card-icon">👤</span><div class="quick-card-title">关于</div><div class="quick-card-sub">了解我更多</div></a></div></section>
+<section class="content" id="articles"><div class="content-main"><div class="section-header"><h2 class="section-title">📝 最新文章</h2><a href="notes.html" class="section-more">查看全部 →</a></div><div id="article-list"></div></div><aside class="sidebar"><div class="sidebar-card"><h3 class="sidebar-title">关于</h3><p class="sidebar-about">记录技术学习笔记，分享开发经验与心得。</p></div><div class="sidebar-card"><h3 class="sidebar-title">搜索</h3><div class="sidebar-search"><span class="sidebar-search-icon">🔍</span><input type="text" id="search-sidebar" placeholder="搜索文章... (按 / 聚焦)" autocomplete="off"></div></div><div class="sidebar-card"><h3 class="sidebar-title">标签</h3><div class="sidebar-tags" id="sidebar-tags"></div></div><div class="sidebar-card"><h3 class="sidebar-title">最近更新</h3><div class="sidebar-recent" id="sidebar-recent"></div></div><div class="sidebar-card"><h3 class="sidebar-title">每日一句</h3><div class="quote-card"><div class="quote-text" id="daily-quote">加载中...</div><div class="quote-author" id="daily-quote-author"></div></div></div></aside></section>
+<section class="projects" id="projects"><div class="section-header"><h2 class="section-title">🚀 项目作品</h2></div><div class="projects-grid" id="project-list"></div></section>
+<footer class="footer"><div class="footer-links"><a href="https://github.com/linrjie" class="footer-link" target="_blank">GitHub</a><a href="about.html" class="footer-link">关于</a><a href="changelog.html" class="footer-link">更新日志</a></div><p class="footer-copy">© 2026 XingHuiSama · 用 ❤️ 构建</p></footer>
+<button class="back-top" id="back-top">↑</button>
 <script src="js/quotes.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/main.js"></script>
@@ -145,18 +25,6 @@
 <script src="js/projects.js"></script>
 <script src="js/widgets.js"></script>
 <script src="js/settings.js"></script>
-<script>
-renderArticleList("article-list");
-initDailyQuote();
-initBgSlideshow();
-renderProjectList("project-list");
-var allTags = [...new Set(articles.flatMap(function(a){ return a.tags; }))];
-var tagsEl = document.getElementById("sidebar-tags");
-if(tagsEl){tagsEl.innerHTML = allTags.slice(0,10).map(function(t){return '<a href="tags.html?tag='+encodeURIComponent(t)+'" class="sidebar-tag">'+t+'</a>';}).join("");}
-var si = document.getElementById("search-input");
-if(si){var dt;si.addEventListener("input",function(){clearTimeout(dt);dt=setTimeout(function(){var q=si.value;var r=searchArticles(q);var c=document.getElementById("article-list");if(!c)return;if(r.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:40px 0">没有找到匹配的文章</p>';return;}c.innerHTML=r.map(function(a){return '<a href="article.html?id='+a.id+'" class="article-card"><div class="article-card-header"><h3 class="article-card-title">'+highlightText(a.title,q)+'</h3><span class="article-card-date">'+a.date+'</span></div><p class="article-card-summary">'+highlightText(a.excerpt,q)+'</p><div class="article-card-tags">'+a.tags.map(function(t){return '<span class="article-tag">'+t+'</span>';}).join("")+'</div></a>';}).join("");},200);});}
-async function applyHeroSettings(){var s=await SettingsStore.get();document.getElementById("hero-name").textContent=s.name;document.getElementById("hero-desc").textContent=s.subtitle;document.getElementById("hero-avatar-img").src=s.avatar;}
-applyHeroSettings();
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>
