@@ -1989,3 +1989,46 @@ img { max-width: 100%; }
     touch-action: manipulation;
   }
 }
+
+/* ===== Daily Quote Widget ===== */
+.widget-quote {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.quote-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 10px;
+  position: relative;
+  padding: 0 10px;
+}
+
+.quote-text::before {
+  content: "\201C";
+  font-size: 2rem;
+  color: var(--accent);
+  position: absolute;
+  left: -5px;
+  top: -10px;
+  opacity: 0.3;
+}
+
+.quote-text::after {
+  content: "\201D";
+  font-size: 2rem;
+  color: var(--accent);
+  position: absolute;
+  right: -5px;
+  bottom: -15px;
+  opacity: 0.3;
+}
+
+.quote-author {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 8px;
+}

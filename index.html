@@ -123,6 +123,14 @@
             </div>
           </div>
 
+          <!-- Daily Quote -->
+          <div class="widget">
+            <div class="widget-title">📖 每日一句</div>
+            <div class="widget-quote">
+              <div class="quote-text" id="daily-quote">加载中...</div>
+              <div class="quote-author" id="daily-quote-author"></div>
+            </div>
+          </div>
           <!-- Online Time -->
           <div class="widget">
             <div class="widget-title">⚡ 在线时长</div>
@@ -227,12 +235,14 @@
     <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
     <script src="js/articles.js"></script>
+    <script src="js/quotes.js"></script>
     <script src="js/widgets.js"></script>
     <script src="js/settings.js"></script>
     <script>
       renderArticleList("article-list");
       initSearch();
       initBgSlideshow();
+      initDailyQuote();
 
       // 统计数据
       document.getElementById("stat-articles").textContent = articles.length;
