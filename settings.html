@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>设置 - 我的博客</title>
+    <meta name="description" content="个人博客 - 设置 - 我的博客" />
+    <meta property="og:title" content="设置 - 我的博客" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -107,7 +109,7 @@
     <header class="header">
       <div class="header-inner">
         <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
-        <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()">
+        <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="切换导航菜单" aria-expanded="false">
           <span class="nav-toggle-bar"></span>
           <span class="nav-toggle-bar"></span>
           <span class="nav-toggle-bar"></span>
@@ -123,7 +125,7 @@
           <a href="about.html">关于</a>
           <a href="settings.html" title="设置">⚙️ 设置</a>
           <span id="sync-status" style="font-size:0.7rem;margin:8px 0"></span>
-          <button class="theme-toggle" onclick="toggleTheme()">🌙 主题切换</button>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-pressed="false">🌙 主题切换</button>
         </nav>
         <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
       </div>
@@ -314,28 +316,6 @@
         }
       </script>
 
-      <script>
-        async function handleImport(input) {
-          const file = input.files[0];
-          if (!file) return;
-          const status = document.getElementById("import-status");
-          status.textContent = "导入中...";
-          status.style.color = "#6366f1";
-          try {
-            await DB.importAll(file);
-            status.textContent = "✅ 导入成功！";
-            status.style.color = "#22c55e";
-            setTimeout(() => location.reload(), 1500);
-          } catch (e) {
-            status.textContent = "❌ 导入失败";
-            status.style.color = "#ef4444";
-          }
-          input.value = "";
-        }
-      </script>
-    </main>
-
-    <footer class="footer">
       <p>© 2026 MyBlog · 用 ❤️ 和代码构建</p>
     </footer>
 

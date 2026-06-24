@@ -102,3 +102,47 @@ function initWidgets() {
 }
 
 document.addEventListener("DOMContentLoaded", initWidgets);
+
+// ===== Optimized Clock (shared timer) =====
+function initOptimizedClock() {
+  const timeEl = document.getElementById("widget-clock-time");
+  const dateEl = document.getElementById("widget-clock-date");
+  const greetEl = document.getElementById("widget-clock-greeting");
+  const onlineEl = document.getElementById("widget-online-time");
+  
+  if (!timeEl && !onlineEl) return;
+  
+  const startTime = Date.now();
+  
+  function update() {
+    const now = new Date();
+    
+    if (timeEl) {
+      timeEl.textContent = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+    }
+    
+    if (dateEl) {
+      const days = ["日", "一", "二", "三", "四", "五", "六"];
+      dateEl.textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${days[now.getDay()]}`;
+    }
+    
+    if (greetEl) {
+      const h = now.getHours();
+      let g = "🌙 晚上好";
+      if (h >= 5 && h < 9) g = "🌅 早上好";
+      else if (h >= 9 && h < 12) g = "☀️ 上午好";
+      else if (h >= 12 && h < 14) g = "🍜 中午好";
+      else if (h >= 14 && h < 18) g = "🌤 下午好";
+      greetEl.textContent = g;
+    }
+    
+    if (onlineEl) {
+      const s = Math.floor((Date.now() - startTime) / 1000);
+      onlineEl.textContent = `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    }
+  }
+  
+  update();
+  const timerId = setInterval(update, 1000);
+  if (typeof registerTimer === "function") registerTimer(timerId);
+}

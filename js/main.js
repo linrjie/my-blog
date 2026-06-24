@@ -109,3 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
   setActiveNav();
   initBackToTop();
 });
+
+// ===== Cleanup on page unload =====
+const cleanupTimers = [];
+
+function registerTimer(id) {
+  cleanupTimers.push(id);
+  return id;
+}
+
+window.addEventListener("beforeunload", () => {
+  cleanupTimers.forEach(id => clearInterval(id));
+  cleanupTimers.length = 0;
+});

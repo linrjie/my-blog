@@ -1957,3 +1957,35 @@ img { max-width: 100%; }
   .md-editor-pane:first-child { border-right: none; border-bottom: 1px solid var(--border); }
   .friends-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== Accessibility & Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .firefly {
+    animation: none !important;
+    opacity: 0.5;
+  }
+  
+  .bg-layer .bg-gradient {
+    animation: none !important;
+  }
+}
+
+/* ===== Touch Optimization ===== */
+@media (pointer: coarse) {
+  .btn, .nav a, .theme-toggle, .nav-toggle, .back-to-top,
+  .widget-link, .tag, .friend-action-btn, .note-delete,
+  .message-delete, .gallery-delete {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .article-card, .note-card, .friend-card, .gallery-item {
+    touch-action: manipulation;
+  }
+}

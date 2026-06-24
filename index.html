@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>XingHuiSama の 博客</title>
+    <meta name="description" content="XingHuiSama 的个人博客，记录技术思考，分享学习心得。" />
+    <meta property="og:title" content="XingHuiSama の 博客" />
+    <meta property="og:description" content="记录技术思考，分享学习心得。" />
+    <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -34,7 +38,7 @@
     <header class="header">
       <div class="header-inner">
         <a href="index.html" class="logo">MyBlog<span class="logo-accent">の</span>宝藏之地</a>
-        <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()">
+        <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="切换导航菜单" aria-expanded="false">
           <span class="nav-toggle-bar"></span>
           <span class="nav-toggle-bar"></span>
           <span class="nav-toggle-bar"></span>
@@ -50,7 +54,7 @@
           <a href="about.html">关于</a>
           <a href="settings.html" title="设置">⚙️ 设置</a>
           <span id="sync-status" style="font-size:0.7rem;margin:8px 0"></span>
-          <button class="theme-toggle" onclick="toggleTheme()">🌙 主题切换</button>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-pressed="false">🌙 主题切换</button>
         </nav>
         <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
       </div>
@@ -60,7 +64,7 @@
       <!-- Profile Card -->
       <div class="hero-card">
         <div class="hero-avatar">
-          <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=c0aede" alt="avatar" />
+          <img loading="lazy" src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=c0aede" alt="avatar" />
         </div>
         <div class="hero-info">
           <h1 id="setting-hero-name">XingHuiSama</h1>
@@ -259,6 +263,11 @@
         searchClear.classList.remove("visible");
         renderArticleList("article-list");
         searchInput.focus();
+      }
+    </script>
+      <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
       }
     </script>
   </body>
