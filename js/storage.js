@@ -4,8 +4,8 @@
 const DB = (() => {
   function getConfig() {
     return {
-      url: localStorage.getItem("blog_supabase_url") || "",
-      key: localStorage.getItem("blog_supabase_key") || ""
+      url: localStorage.getItem("blog_supabase_url") || "https://rkhulwyvmkikagghfayw.supabase.co",
+      key: localStorage.getItem("blog_supabase_key") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJraHVsd3l2bWtpa2FnZ2hmYXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNDk0OTEsImV4cCI6MjA5NzgyNTQ5MX0.pcnF2pjhsPkIKz9hxyJXM8wGwwZhTt6D66ky1_SZjyo"
     };
   }
 
